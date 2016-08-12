@@ -88,10 +88,10 @@
 				<p id="selectorBox"><strong>Lead: </strong><br/></p>
 			</div>
 			<div id="queryBox2" class="col-md-6">
-					<p><strong>Subject Id: </strong><input type="text" size="10" id="subjectid-field" value="ncc1701A"> <span class="littleNote"> preset datasets to query against (try: ncc1701, ncc1701A, ncc1701B, ncc1701C, ncc1701D)</span></p>
+					<p><strong>Subject Id: </strong><input type="text" size="15" id="subjectid-field" value="STUDY_00001"> <span class="littleNote"> preset datasets to query against (try: ncc1701, ncc1701A, ncc1701B, ncc1701C, ncc1701D)</span></p>
 				    <p><strong>Resolution: </strong><input type="text" size="10" id="sample-field" value="500"> <span class="littleNote"> approximate size of graph to render in pixels</span></p>
-				    <p><strong>Start Time: </strong><input type="text" size="15" id="start-field" value="1420088400"><span class="littleNote"> unix time value: start is fixed at 1420088400</span></p>
-				    <p><strong>End Time: </strong><input type="text" size="15" id="end-field" value="1420093382"><span class="littleNote">  unix time value: (5 min = 1420088700) (20 min = 1420089600) (40 min = 1420090200) 
+				    <p><strong>Start Time: </strong><input type="text" size="15" id="start-field" value="1419425776"><span class="littleNote"> unix time value: start is fixed at 1420088400</span></p>
+				    <p><strong>End Time: </strong><input type="text" size="15" id="end-field" value="1419458587"><span class="littleNote">  unix time value: (5 min = 1420088700) (20 min = 1420089600) (40 min = 1420090200) 
 (1:23 hours or threshold of information = 1420093382) (use 1420986800 as end for vitals)</span></p>
 					<p><button type="button" class="btn btn-sm btn-success" onclick="doQuery();">Submit</button></p>
 				</form>

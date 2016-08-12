@@ -10,18 +10,29 @@ var checkboxes;
 var checkboxesChecked = [];
 var vitGraphs = [];
 var ecgGraphs = [];
+/*var leadDefaults = [
+    {name: 'ecg.I.uv', x: 0, y: 0, width: 4, height: 3},
+    {name: 'ecg.II.uv', x: 4, y: 0, width: 4, height: 3},
+    {name: 'ecg.III.uv', x: 8, y: 0, width: 4, height: 3},
+    {name: 'ecg.aVF.uv', x: 0, y: 3, width: 4, height: 3},
+    {name: 'ecg.aVL.uv', x: 4, y: 3, width: 4, height: 3},
+    {name: 'ecg.aVR.uv', x: 8, y: 3, width: 4, height: 3},
+    {name: 'vitals.heartRate.perMin.perMin', x: 0, y: 0, width: 6, height: 2},
+    {name: 'vitals.expiredCO2.mmHg.perMin', x: 0, y: 6, width: 6, height: 2},
+    {name: 'vitals.arterialPressureDiastolic.mmHg.perMin', x: 2, y: 0, width: 6, height: 2},
+    {name: 'vitals.arterialPressureMean.mmHg.perMin', x: 2, y: 6, width: 6, height: 2}
+];*/
+//leadDefaults below for query on new openTSDB instance
 var leadDefaults = [
-       {name: 'ecg.I.uv', x: 0, y: 0, width: 4, height: 3},
-       {name: 'ecg.II.uv', x: 4, y: 0, width: 4, height: 3},
-       {name: 'ecg.III.uv', x: 8, y: 0, width: 4, height: 3},
-       {name: 'ecg.aVF.uv', x: 0, y: 3, width: 4, height: 3},
-       {name: 'ecg.aVL.uv', x: 4, y: 3, width: 4, height: 3},
-       {name: 'ecg.aVR.uv', x: 8, y: 3, width: 4, height: 3},
-       {name: 'vitals.heartRate.perMin.perMin', x: 0, y: 0, width: 6, height: 2},
-       {name: 'vitals.expiredCO2.mmHg.perMin', x: 0, y: 6, width: 6, height: 2},
-       {name: 'vitals.arterialPressureDiastolic.mmHg.perMin', x: 2, y: 0, width: 6, height: 2},
-       {name: 'vitals.arterialPressureMean.mmHg.perMin', x: 2, y: 6, width: 6, height: 2}
-   ];
+    {name: 'vitals.respiratoryRate.breathsPerMin.perMin', x: 0, y: 0, width: 6, height: 4},
+    {name: 'vitals.centralVenousPressure.mmHg.perMin', x: 0, y: 6, width: 6, height: 4},
+    {name: 'vitals.heartRate.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
+    {name: 'vitals.inspiredO2.percent.perMin', x: 2, y: 6, width: 6, height: 4},
+    {name: 'vitals.peakPressure.cmH2O.perMin', x: 0, y: 0, width: 6, height: 4},
+    {name: 'vitals.prematureVentricularCount.countPerMin.perMin', x: 0, y: 6, width: 6, height: 4},
+    {name: 'vitals.pulse.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
+    {name: 'vitals.pulseOximetry.percent.perMin', x: 2, y: 6, width: 6, height: 4}
+];
 
 function init() {
 	getLeadContainer();
@@ -133,27 +144,43 @@ function getFormElements(){
 }
 
 function appendLeadList() {
+/*	var elementArray = {   // array of available leads: things in Waveform instance - 10.162.38.224
+			"ecg.I.uv":"ecg I", 
+			"ecg.II.uv":"ecg II", 
+			"ecg.III.uv":"ecg III",
+			"ecg.aVF.uv":"ecg aVF", 
+			"ecg.aVL.uv":"ecg aVL",
+			"ecg.aVR.uv":"ecg aVR", 
+			"ecg.V1.uv":"ecg V1",
+			"ecg.V2.uv":"ecg V2", 
+			"ecg.V3.uv":"ecg V3",
+			"ecg.V4.uv":"ecg V4", 
+			"ecg.V5.uv":"ecg V5",
+			"ecg.V6.uv":"ecg V6", 
+			"vitals.heartRate.perMin.perMin":"heartRate perMin",
+			"vitals.expiredCO2.mmHg.perMin":"expiredCO2 mmHg perMin",
+			"vitals.arterialPressureDiastolic.mmHg.perMin":"arterialPressureDiastolic mmHg perMin", 
+			"vitals.arterialPressureMean.mmHg.perMin":"arterialPressureMean mmHg perMin",
+			"vitals.arterialPressureRate.perMin.perMin":"arterialPressureRate perMin", 
+			"vitals.arterialPressureSystolic.mmHg.perMin":"arterialPressureSystolic mmHg perMin", 
+			"vitals.centralVenousPressureMean.mmHg.perMin":"centralVenousPressureMean mmHg perMin"			
+		};*/
+	//list below = array of available leads for query on new openTSDB instance  10.162.38.240
 	var elementArray = {   // array of available leads: once we are querying tsd for these on per-subject basis, pass to function...
-		"ecg.I.uv":"ecg I", 
-		"ecg.II.uv":"ecg II", 
-		"ecg.III.uv":"ecg III",
-		"ecg.aVF.uv":"ecg aVF", 
-		"ecg.aVL.uv":"ecg aVL",
-		"ecg.aVR.uv":"ecg aVR", 
-		"ecg.V1.uv":"ecg V1",
-		"ecg.V2.uv":"ecg V2", 
-		"ecg.V3.uv":"ecg V3",
-		"ecg.V4.uv":"ecg V4", 
-		"ecg.V5.uv":"ecg V5",
-		"ecg.V6.uv":"ecg V6", 
-		"vitals.heartRate.perMin.perMin":"heartRate perMin",
-		"vitals.expiredCO2.mmHg.perMin":"expiredCO2 mmHg perMin",
-		"vitals.arterialPressureDiastolic.mmHg.perMin":"arterialPressureDiastolic mmHg perMin", 
-		"vitals.arterialPressureMean.mmHg.perMin":"arterialPressureMean mmHg perMin",
-		"vitals.arterialPressureRate.perMin.perMin":"arterialPressureRate perMin", 
-		"vitals.arterialPressureSystolic.mmHg.perMin":"arterialPressureSystolic mmHg perMin", 
-		"vitals.centralVenousPressureMean.mmHg.perMin":"centralVenousPressureMean mmHg perMin"			
-	};
+			"vitals.centralVenousPressure.mmHg.perMin":"CVP mmHG/min", 
+			"vitals.heartRate.perMin.perMin":"Heart Rate/min", 
+			"vitals.inspiredO2.percent.perMin":"inspO2 percent/min",
+			"vitals.non-InvasiveBPDiastolic.mmHg.perMin":"non-invBPDiastolic mmHG/min", 
+			"vitals.non-InvasiveBPMean.mmHg.perMin":"non-invBPMean mmHG/min",
+			"vitals.non-InvasiveBPSystolic.mmHg.perMin":"non-invBPSystolic mmHG/min", 
+			"vitals.peakPressure.cmH2O.perMin":"peakPressure cmH2O/min",
+			"vitals.prematureVentricularCount.countPerMin.perMin":"PVC count/min", 
+			"vitals.pulse.perMin.perMin":"Pulse beats/min",
+			"vitals.pulseNon-InvasiveBP.mmHg.perMin":"non-invBP mmHG/min", 
+			"vitals.pulseOximetry.percent.perMin":"pulseOximetry percent/min",
+			"vitals.respiratoryRate.breathsPerMin.perMin":"RESP breaths/min", 
+			"vitals.tidalVolume.milliliters.perMin":"tidalVolume ml/min"			
+		};
     var list;
     var linkElement;
     var inputElement;
@@ -276,7 +303,7 @@ function renderGraphDiv(wfID,txt){
 	    	var grX = 0;
 	        var grY = 0;
 	        var grW = 6;
-	        var grH = 2;
+	        var grH = 4;
 	        break;
 	    case"ecgContainer":
 	    	var grX = 0;
@@ -330,9 +357,9 @@ function graphPush(g,data){
 	g.push( new Dygraph(
 	        document.getElementById(wfID),
 	        data,{
-	        	labels:["Time","uV"], 
+	        	labels:["Time",""], 
 	        	xlabel:["Time"],
-	        	ylabel:["uV"]
+	        	ylabel:[""]
 	        	
 	        }
 	        )

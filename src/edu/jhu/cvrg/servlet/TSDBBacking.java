@@ -43,7 +43,7 @@ import edu.jhu.cvrg.timeseriesstore.opentsdb.TimeSeriesRetriever;
 public class TSDBBacking extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	final String OPENTSDB_HOST = "10.162.38.224";
+	final String OPENTSDB_HOST = "10.162.38.240";
 	final String OPENTSDB_URL = "http://"+OPENTSDB_HOST+":4242";
 	final Boolean OPENTSDB_BOO = true;
     
@@ -58,8 +58,9 @@ public class TSDBBacking extends HttpServlet {
     public String retrieveSingleLead(String subjectId, String metric, long unixTimeStart, long unixTimeEnd, String downsampleRate) throws OpenTSDBException{
     	//pause();
     	HashMap<String, String> tags = new HashMap<String, String>();
-    	if (metric.startsWith("ecg")){
-        	tags.put("subjectId", subjectId);
+    	if (metric.startsWith("ecg") || metric.startsWith("vitals")){
+        	//tags.put("subjectId", subjectId);   
+        	tags.put("subject_id", subjectId);     // use "subjectId" for queries to server @ 224 and "subject_id" for queries to 240
     	}
     	JSONObject dataForView;
 	    String finalDataString = "";
@@ -74,17 +75,11 @@ public class TSDBBacking extends HttpServlet {
 			String leadMetric = "";
 			JSONObject leadTags = new JSONObject();
 
-			//System.out.println(dataForView);
-    		rawData = dataForView.getJSONObject("dps");
+			rawData = dataForView.getJSONObject("dps");
     		leadMetric = dataForView.getString("metric");
     		leadTags = dataForView.getJSONObject("tags");
     		
     		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-    		
-//    		if (leadMetric != null){
-//    			//System.out.println(leadMetric + ": lead Metric");
-//			}
-
 			if (!leadTags.isNull("format")){
 				String value = leadTags.getString("format");
 				switch (value.toLowerCase()) {
@@ -121,14 +116,13 @@ public class TSDBBacking extends HttpServlet {
 			        Long onggg = (long) (Long.parseLong(key)*sampRate);
 			        
 			        // need to scale time appropriately for ecg leads
-			        
 			        Date time = new Date(onggg);
 			        String reportDate = df.format(time);
-			        //String shortKey = key.substring(5);
-			        Long numValue = (long) (Long.parseLong(rawData.getString(key)) * aduGain);
+//			        Long numValue = (long) (Long.parseLong(rawData.getString(key)) * aduGain);
+//			        System.out.println(numValue);
 					
-			        String value = String.valueOf(numValue);
-			        map.put(reportDate,value);
+			        //String value = String.valueOf(numValue);
+			        map.put(reportDate,rawData.getString(key));
 			    }
     			int counterR = 0;
     			for(Map.Entry<String, String> entry : map.entrySet()){
@@ -137,8 +131,6 @@ public class TSDBBacking extends HttpServlet {
     				String v = entry.getValue();
     				finalDataString += "[" + k + "," + v + "],";
     			}
-    			System.out.println(":" + counterR + ": " + finalDataString);
-    			//System.out.println(":" + counterR + ": " + finalDataString);
     			if (finalDataString.charAt(finalDataString.length()-1)==',') {
     				finalDataString = finalDataString.substring(0, finalDataString.length()-1);
     			}
