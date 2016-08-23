@@ -17,8 +17,6 @@ import edu.jhu.cvrg.timeseriesstore.exceptions.OpenTSDBException;
 @WebServlet(asyncSupported = true, urlPatterns = { "/QueryHandler" })
 public class QueryHandler extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	//private ComposerData compData = new ComposerData();
-	//private HashMap composers = compData.getComposers();
 	private ServletContext context;
     /**
      * @see HttpServlet#HttpServlet()

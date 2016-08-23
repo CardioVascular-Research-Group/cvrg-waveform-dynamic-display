@@ -9,7 +9,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>index</servlet-name>
-    <url-pattern>/waveform</url-pattern>
+    <url-pattern>/webapp</url-pattern>
   </servlet-mapping>
   <servlet>
     <description></description>
@@ -19,6 +19,6 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>TSDServlet</servlet-name>
-    <url-pattern>/waveform/tsd</url-pattern>
+    <url-pattern>/tsd</url-pattern>
   </servlet-mapping>
 </web-app>

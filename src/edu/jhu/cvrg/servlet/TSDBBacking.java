@@ -43,7 +43,7 @@ import edu.jhu.cvrg.timeseriesstore.opentsdb.TimeSeriesRetriever;
 public class TSDBBacking extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	final String OPENTSDB_HOST = "10.162.38.240";
+	final String OPENTSDB_HOST = "10.162.38.26";
 	final String OPENTSDB_URL = "http://"+OPENTSDB_HOST+":4242";
 	final Boolean OPENTSDB_BOO = true;
     
@@ -54,7 +54,41 @@ public class TSDBBacking extends HttpServlet {
 			e.printStackTrace();
 		}
     }
-   
+
+    public String retrieveMetricList(String subjectId) throws OpenTSDBException, JSONException{
+
+    	JSONArray dataForView; 
+    	String finalMetricList = "";
+        	dataForView = TimeSeriesRetriever.getMetricList(OPENTSDB_URL, subjectId);
+        	
+        		if (dataForView != null){
+        			//System.out.println(dataForView.toString());
+					for(int i = 0; i < dataForView.length(); i++) {
+						
+						JSONObject k = dataForView.getJSONObject(i);
+	    				if (k.getJSONArray("results") != null){
+	    					JSONArray l = k.getJSONArray("results");
+	    					for(int m = 0; m < l.length(); m++){
+	    						JSONObject objects = l.getJSONObject(m);
+								//System.out.println(objects.toString());
+	    						String n = objects.getString("metric");
+								finalMetricList +=  "\""+n+"\",";
+	    					}
+	    					
+	    				}
+						
+	    			}
+					if (finalMetricList.charAt(finalMetricList.length()-1)==',') {
+	    				finalMetricList = finalMetricList.substring(0, finalMetricList.length()-1);
+	    			}
+					
+				}
+				
+			
+    	finalMetricList = "[" + finalMetricList + "]";
+    	return finalMetricList;
+    }
+    
     public String retrieveSingleLead(String subjectId, String metric, long unixTimeStart, long unixTimeEnd, String downsampleRate) throws OpenTSDBException{
     	//pause();
     	HashMap<String, String> tags = new HashMap<String, String>();
@@ -67,8 +101,12 @@ public class TSDBBacking extends HttpServlet {
     	//Interval Annotation result is {"tsuid":"00005900000200036A00000400036B","description":"Test Annotation 20160405 - 
     	//text for additional interval notation","notes":"","endTime":1420070467,"startTime":1420070465}
 		try {
-			dataForView = TimeSeriesRetriever.getDownsampledTimeSeries(OPENTSDB_URL, unixTimeStart, unixTimeEnd, metric, downsampleRate, tags, OPENTSDB_BOO);
-	    	
+			if (downsampleRate == "zero"){
+				dataForView = TimeSeriesRetriever.retrieveTimeSeries(OPENTSDB_URL, unixTimeStart, unixTimeEnd, metric, tags, OPENTSDB_BOO);
+			} else {
+				dataForView = TimeSeriesRetriever.getDownsampledTimeSeries(OPENTSDB_URL, unixTimeStart, unixTimeEnd, metric, downsampleRate, tags, OPENTSDB_BOO);
+				}
+			
 			double sampRate = 1;
 			double aduGain = 1;
 			JSONObject rawData = new JSONObject();
@@ -114,19 +152,18 @@ public class TSDBBacking extends HttpServlet {
     			while(iter.hasNext()){
 			        String key = (String)iter.next();
 			        Long onggg = (long) (Long.parseLong(key)*sampRate);
-			        
 			        // need to scale time appropriately for ecg leads
-			        Date time = new Date(onggg);
+			        Date time = new Date(onggg * 1000);  // multiplied by 1000 to compensate for only 1-second resolution being returned from TSD
 			        String reportDate = df.format(time);
+//			        System.out.println(onggg + ":" + reportDate + ":" + rawData.getString(key));
+			        
 //			        Long numValue = (long) (Long.parseLong(rawData.getString(key)) * aduGain);
 //			        System.out.println(numValue);
 					
 			        //String value = String.valueOf(numValue);
 			        map.put(reportDate,rawData.getString(key));
 			    }
-    			int counterR = 0;
     			for(Map.Entry<String, String> entry : map.entrySet()){
-    				counterR++;
     				String k = entry.getKey();
     				String v = entry.getValue();
     				finalDataString += "[" + k + "," + v + "],";

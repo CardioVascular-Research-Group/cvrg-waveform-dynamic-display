@@ -23,15 +23,19 @@ var ecgGraphs = [];
     {name: 'vitals.arterialPressureMean.mmHg.perMin', x: 2, y: 6, width: 6, height: 2}
 ];*/
 //leadDefaults below for query on new openTSDB instance
+//var leadDefaults = [
+//    {name: 'vitals.respiratoryRate.breathsPerMin.perMin', x: 0, y: 0, width: 6, height: 4},
+//    {name: 'vitals.centralVenousPressure.mmHg.perMin', x: 0, y: 6, width: 6, height: 4},
+//    {name: 'vitals.heartRate.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
+//    {name: 'vitals.inspiredO2.percent.perMin', x: 2, y: 6, width: 6, height: 4},
+//    {name: 'vitals.peakPressure.cmH2O.perMin', x: 0, y: 0, width: 6, height: 4},
+//    {name: 'vitals.prematureVentricularCount.countPerMin.perMin', x: 0, y: 6, width: 6, height: 4},
+//    {name: 'vitals.pulse.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
+//    {name: 'vitals.pulseOximetry.percent.perMin', x: 2, y: 6, width: 6, height: 4}
+//];
+//leadDefaults below for query on new openTSDB instance
 var leadDefaults = [
-    {name: 'vitals.respiratoryRate.breathsPerMin.perMin', x: 0, y: 0, width: 6, height: 4},
-    {name: 'vitals.centralVenousPressure.mmHg.perMin', x: 0, y: 6, width: 6, height: 4},
-    {name: 'vitals.heartRate.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
-    {name: 'vitals.inspiredO2.percent.perMin', x: 2, y: 6, width: 6, height: 4},
-    {name: 'vitals.peakPressure.cmH2O.perMin', x: 0, y: 0, width: 6, height: 4},
-    {name: 'vitals.prematureVentricularCount.countPerMin.perMin', x: 0, y: 6, width: 6, height: 4},
-    {name: 'vitals.pulse.perMin.perMin', x: 2, y: 0, width: 6, height: 4},
-    {name: 'vitals.pulseOximetry.percent.perMin', x: 2, y: 6, width: 6, height: 4}
+    //no default variables until we can get this mess straightened out.
 ];
 
 function init() {
@@ -166,7 +170,7 @@ function appendLeadList() {
 			"vitals.centralVenousPressureMean.mmHg.perMin":"centralVenousPressureMean mmHg perMin"			
 		};*/
 	//list below = array of available leads for query on new openTSDB instance  10.162.38.240
-	var elementArray = {   // array of available leads: once we are querying tsd for these on per-subject basis, pass to function...
+/*	var elementArray = {   // array of available leads: once we are querying tsd for these on per-subject basis, pass to function...
 			"vitals.centralVenousPressure.mmHg.perMin":"CVP mmHG/min", 
 			"vitals.heartRate.perMin.perMin":"Heart Rate/min", 
 			"vitals.inspiredO2.percent.perMin":"inspO2 percent/min",
@@ -180,7 +184,18 @@ function appendLeadList() {
 			"vitals.pulseOximetry.percent.perMin":"pulseOximetry percent/min",
 			"vitals.respiratoryRate.breathsPerMin.perMin":"RESP breaths/min", 
 			"vitals.tidalVolume.milliliters.perMin":"tidalVolume ml/min"			
+		};*/
+	var elementArray = {   // 4 vitals specified in subject id 2224BN1416911131-20141224-184234 on new openTSDB instance  10.162.38.240
+/*			"vitals.ecg.uv.perMs":"ECG uv/Ms", 
+			"vitals.abp.mmHg.perMs":"ABP mmHg/Ms",
+			"vitals.pleth.percent.perMs":"PLETH percent/Ms",
+			"vitals.co2.mmL.perMs":"CO2 mmL/Ms"	*/		
 		};
+	var elementParsing = document.getElementById("availMetrics").innerHTML;
+	//console.log(elementParsing);
+	var jsonToParse = JSON.parse(elementParsing);
+
+	
     var list;
     var linkElement;
     var inputElement;
@@ -189,22 +204,31 @@ function appendLeadList() {
 	list.id = "query-field";
 	list.className = "query-selects"
 	
-	for (var key in elementArray){
+//	for (var key in elementArray){	
+	for (var key in jsonToParse){
+		var qualName = jsonToParse[key];
 		inputElement = document.createElement("input");
 		inputElement.type = "checkbox";
 		inputElement.name = "query-field";
-		inputElement.value = key;
+		var n = qualName.indexOf(".");
+		var m = qualName.lastIndexOf(".");
+		console.log(n+m);
+		var trimName = qualName.substring(0, m);
+		m = trimName.lastIndexOf(".");
+		var viewName = trimName.substring(n+1,m);
+		inputElement.value = qualName;
 		/*for (var a = 0; a<leadDefaults.length; a++){
 			console.log(leadDefaults[a].name);
 		}*/
 		for (var a in leadDefaults){
-			if(key===leadDefaults[a].name){
+			if(qualName===leadDefaults[a].name){
 				inputElement.checked = true;
 				break;
 			}
 		}
         list.appendChild(inputElement);   	
-	    list.appendChild(document.createTextNode(elementArray[key]));
+//	    list.appendChild(document.createTextNode(elementArray[key]));
+	    list.appendChild(document.createTextNode(viewName));
 	    list.appendChild(document.createElement("br"));
     }
     completeLeadList.appendChild(list); 
@@ -286,7 +310,7 @@ function renderGraphDiv(wfID,txt){
     			singleElement.push(a);
     			break;
     		case 1:// s/b more error handling > array[1] is the value in string form
-    			var b = parseInt(singleEntry[j]);
+    			var b = parseFloat(singleEntry[j]);
     			singleElement.push(b);
     			break;
     		default:
@@ -303,7 +327,7 @@ function renderGraphDiv(wfID,txt){
 	    	var grX = 0;
 	        var grY = 0;
 	        var grW = 6;
-	        var grH = 4;
+	        var grH = 3;
 	        break;
 	    case"ecgContainer":
 	    	var grX = 0;
@@ -359,29 +383,49 @@ function graphPush(g,data){
 	        data,{
 	        	labels:["Time",""], 
 	        	xlabel:["Time"],
-	        	ylabel:[""]
-	        	
-	        }
+	        	ylabel:[""],
+	        	highlightCallback: function(){
+	        		//syncGraphs();
+	        		activateResize();
+	        	}, 
+	        	/*zoomCallback: function(){
+	        		syncGraphs();
+	        	}*/
+	        } 
 	        )
 		);
 }
 
+
+var sync = Dygraph.synchronize(vitGraphs);
+
+
+
+function update() {
+sync.detach();
+sync = Dygraph.synchronize(gs, {
+  zoom: true,
+  selection: true, 
+  range: false
+});
+}
+
+
 function syncGraphs() {
-    Dygraph.synchronize(vitGraphs, {zoom: true, selection: true, range: false});
-    Dygraph.synchronize(ecgGraphs, {zoom: true, selection: true, range: false});
+	if (vitGraphs.length > 0){
+		Dygraph.synchronize(vitGraphs, {zoom: true, selection: true, range: false});
+	}
 }
 
 
 function activateResize(){
 	var ecgClass = document.getElementsByClassName('ui-icon-gripsmall-diagonal-se');
 	for (var i = 0; i < ecgClass.length; i++) {
-	    console.log("something exists");
 		ecgClass[i].addEventListener('click', resizeGraphs);
 	}
 }
 
 function resizeGraphs() {
-	//alert("trying to resize");
 	for(var i = 0; i < vitGraphs.length; i++){
 		vitGraphs[i].resize();
 	}
